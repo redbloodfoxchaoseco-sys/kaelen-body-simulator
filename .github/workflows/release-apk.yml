@@ -5,12 +5,18 @@ name: Release APK
 #   KAELEN_KEYSTORE_B64 — kaelen-release.jks codificado en base64 (base64 -w0 kaelen-release.jks)
 #   KAELEN_STORE_PASS   — contraseña del keystore
 #   KAELEN_KEY_PASS     — contraseña de la clave (si difiere)
-# Sin los secretos, el flujo construye un APK sin firmar y lo adjunta igualmente.
+# Sin los secretos, el flujo construye un APK sin firmar y NO lo adjunta al release.
+# Tras configurar los secretos, re-ejecuta el flujo manualmente con la etiqueta
+# del release para adjuntar el APK firmado.
 
 on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Etiqueta del release a reconstruir (ej. v1.1.0); vacío = solo compilar'
+        required: false
 
 permissions:
   contents: write
@@ -34,14 +40,17 @@ jobs:
           gradle-version: '8.9'
 
       - name: Decode keystore
+        id: keystore
         env:
           KAELEN_KEYSTORE_B64: ${{ secrets.KAELEN_KEYSTORE_B64 }}
         run: |
           if [ -n "$KAELEN_KEYSTORE_B64" ]; then
             echo "$KAELEN_KEYSTORE_B64" | base64 -d > android/kaelen-release.jks
-            echo "keystore decodificado"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "keystore decodificado — APK firmado"
           else
-            echo "::warning::Falta el secreto KAELEN_KEYSTORE_B64 — el APK saldrá sin firmar"
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Falta el secreto KAELEN_KEYSTORE_B64 — el APK saldrá sin firmar y no se adjuntará"
           fi
 
       - name: Sync web assets
@@ -49,11 +58,15 @@ jobs:
 
       - name: Determine version
         id: ver
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             TAG="${GITHUB_REF_NAME}"
+          elif [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
           else
-            TAG="manual-$(git rev-parse --short HEAD)"
+            TAG=""
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "code=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
@@ -65,9 +78,6 @@ jobs:
           TAG: ${{ steps.ver.outputs.tag }}
           CODE: ${{ steps.ver.outputs.code }}
         run: |
-          [ -f android/kaelen-release.jks ] && [ -n "$KAELEN_STORE_PASS" ] \
-            && echo "Construyendo APK firmado" \
-            || echo "::warning::Sin keystore/contraseña — APK sin firmar"
           gradle -p android assembleRelease \
             -PAPP_VERSION="${TAG#v}" -PAPP_CODE="$CODE" --no-daemon
 
@@ -82,10 +92,17 @@ jobs:
           fi
 
       - name: Attach APK to release
-        if: ${{ github.event_name == 'release' }}
+        if: ${{ steps.keystore.outputs.signed == 'true' && steps.ver.outputs.tag != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.ver.outputs.tag }}
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk "Kaelen-BodySim-${TAG#v}.apk"
           gh release upload "$TAG" "Kaelen-BodySim-${TAG#v}.apk" --clobber
+
+      - name: Instructions when unsigned
+        if: ${{ steps.keystore.outputs.signed != 'true' }}
+        run: |
+          echo "::notice::APK compilado sin firmar. Para adjuntar un APK firmado:"
+          echo "::notice::1) Configura los secretos KAELEN_KEYSTORE_B64, KAELEN_STORE_PASS y KAELEN_KEY_PASS"
+          echo "::notice::2) Re-ejecuta este flujo (Run workflow) con la etiqueta del release"

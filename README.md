@@ -29,15 +29,34 @@ Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): 
   El keystore y su contraseña **no se versionan**: exporta `KAELEN_STORE_PASS` (y opcionalmente `KAELEN_KEY_PASS`) antes de compilar. Sin ellas, Gradle genera un APK sin firmar en lugar de fallar.
 
 ## APK automático en cada release (GitHub Actions)
-Al publicar un release, [.github/workflows/release-apk.yml](.github/workflows/release-apk.yml) reconstruye el APK firmado y lo adjunta al release automáticamente. Requiere estos secretos del repo:
+Al publicar un release, [.github/workflows/release-apk.yml](.github/workflows/release-apk.yml) reconstruye el APK firmado y lo adjunta al release automáticamente. La versión del APK toma la etiqueta del release (`v1.2.0` → `versionName 1.2.0`) y el `versionCode` es el número de commits.
+
+### Configuración de secretos (una sola vez)
+El keystore `kaelen-release.jks` (alias `kaelen`) está respaldado de forma privada en Google Drive junto a `kaelen-keystore-credentials.txt`; nunca se versiona. Para habilitar la firma automática, crea estos tres secretos en **Settings → Secrets and variables → Actions → New repository secret**:
 
 | Secreto | Contenido |
 |---|---|
-| `KAELEN_KEYSTORE_B64` | `base64 -w0 kaelen-release.jks` del keystore rotado (copia privada en Google Drive) |
-| `KAELEN_STORE_PASS` | Contraseña del keystore |
-| `KAELEN_KEY_PASS` | Contraseña de la clave (opcional si es la misma) |
+| `KAELEN_KEYSTORE_B64` | El keystore codificado en base64: `base64 -w0 kaelen-release.jks` |
+| `KAELEN_STORE_PASS` | Contraseña del keystore (en `kaelen-keystore-credentials.txt`) |
+| `KAELEN_KEY_PASS` | Contraseña de la clave (omítelo si es la misma que la del keystore) |
 
-Sin los secretos, el flujo construye un APK sin firmar y lo avisa. La versión del APK toma la etiqueta del release (`v1.2.0` → `versionName 1.2.0`) y el `versionCode` es el número de commits.
+Con `gh` (GitHub CLI) autenticado, desde la carpeta que contiene el keystore:
+
+```bash
+# 1. Codificar el keystore (una línea, sin saltos)
+base64 -w0 kaelen-release.jks > /tmp/ks.b64
+
+# 2. Crear los secretos (pedirá el valor en cada uno)
+gh secret set KAELEN_KEYSTORE_B64 < /tmp/ks.b64
+gh secret set KAELEN_STORE_PASS   # pega la contraseña cuando la pida
+gh secret set KAELEN_KEY_PASS    # solo si difiere de la del keystore
+rm /tmp/ks.b64
+```
+
+### Verificar y reintentar
+- Comprueba el estado en la pestaña **Actions** del repo.
+- Sin secretos, el flujo compila un APK sin firmar, **no** lo adjunta al release y deja un aviso con estas instrucciones.
+- Tras crear los secretos, publica el release normalmente; o re-ejecuta el flujo manualmente (**Run workflow**) indicando la etiqueta (p. ej. `v1.1.0`) para reconstruir y adjuntar el APK firmado de un release ya existente.
 
 ## Descargas (v1.0.0)
 - [Kaelen-BodySim-Setup-1.0.0.exe](installers/Kaelen-BodySim-Setup-1.0.0.exe) — Windows instalador
