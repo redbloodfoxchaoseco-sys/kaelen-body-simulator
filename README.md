@@ -1,8 +1,12 @@
-# Kaelen · Simulador Corporal 1.0.0
+# Kaelen · Simulador Corporal
+
+[![Checks](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/actions/workflows/checks.yml/badge.svg)](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/actions/workflows/checks.yml)
+[![Release](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/actions/workflows/release.yml/badge.svg)](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-e8b03c.svg)](LICENSE)
 
 Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): sistema térmico, hipótesis estructural y centros simbólicos, con los datos reales del proyecto ALBA.
 
-**Sitio web:** [redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator](https://redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator/) — demo de Anatomía 3D y descargas de todas las apps.
+**Sitio web:** [redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator](https://redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator/) — demo de Anatomía 3D, apps jugables en el navegador ([simulador](https://redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator/web/) · [Anatomía 3D](https://redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator/anatomy3d/)) y descargas de todas las apps.
 
 ## Showcase
 
