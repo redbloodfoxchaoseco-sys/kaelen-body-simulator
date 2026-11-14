@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaelen · Simulador Corporal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="avatar"></div>
+    <div>
+      <h1>Kaelen <span class="sep">·</span> Simulador Corporal</h1>
+      <p id="statusLine">Arquitectura corporal ALBA · 3.6 m · 2010 kg · 128 actuadores</p>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><span class="m-label">Generación</span><span class="m-value" id="mGen">0 W</span></div>
+    <div class="metric"><span class="m-label">Núcleo</span><span class="m-value" id="mCore">-- °C</span></div>
+    <div class="metric"><span class="m-label">Carga estructural</span><span class="m-value" id="mLoad">0 %</span></div>
+    <div class="metric"><span class="m-value ok" id="mVerdict">● estable</span></div>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="viz-panel">
+    <div class="viz-tabs">
+      <button data-view="thermal" class="tab active">Térmico</button>
+      <button data-view="structural" class="tab">Estructural</button>
+      <button data-view="centers" class="tab">Centros</button>
+    </div>
+    <div class="viz-stage">
+      <svg id="bodySvg" viewBox="0 0 624 440" role="img" aria-label="Silueta de Kaelen"></svg>
+      <div class="viz-hint" id="vizHint">Pasa el cursor por los segmentos para ver su masa y estado térmico</div>
+    </div>
+    <div class="loadpath" id="loadPathBox" hidden>
+      <h3>Cadena de carga (hipótesis estructural)</h3>
+      <div class="chain" id="loadChain"></div>
+      <p class="fine">Muscle → tejido conectivo/piel escamada → contactos de escama → anclajes de placa → marco interno/huesos → torso/extremidades → suelo. Hipótesis verificable, no hecho establecido.</p>
+    </div>
+  </section>
+
+  <aside class="controls">
+    <div class="panel open">
+      <h2 class="panel-title">Actividad</h2>
+      <div class="presets" id="activityPresets">
+        <button data-act="rest">Reposo</button>
+        <button data-act="walk">Marcha</button>
+        <button data-act="combat">Combate</button>
+        <button data-act="overload">Sobrecarga</button>
+      </div>
+      <div class="slider-row">
+        <label>Generación de calor <output id="genOut">6390 W</output></label>
+        <input type="range" id="genSlider" min="500" max="16000" step="50" value="6390">
+      </div>
+    </div>
+
+    <div class="panel open">
+      <h2 class="panel-title">Control térmico</h2>
+      <div class="slider-row">
+        <label>Transporte interno (K) <output id="kOut">1000 W/K</output></label>
+        <input type="range" id="kSlider" min="500" max="5000" step="100" value="1000">
+      </div>
+      <div class="slider-row">
+        <label>Evaporación (E) <output id="eOut">0 W</output></label>
+        <input type="range" id="eSlider" min="0" max="8000" step="100" value="0">
+      </div>
+      <div class="slider-row">
+        <label>Temperatura ambiente <output id="ambOut">25 °C</output></label>
+        <input type="range" id="ambSlider" min="-10" max="45" step="1" value="25">
+      </div>
+      <div class="presets">
+        <button data-case="baseline">Caso base (falla)</button>
+        <button data-case="evap">Solo evaporación (falla)</button>
+        <button data-case="enhanced">Mejorado (pasa)</button>
+      </div>
+      <p class="fine">Límite de diseño: <strong>37.6 °C</strong> en núcleo — no más de meros minutos. Superarlo degrada la prueba.</p>
+    </div>
+
+    <div class="panel">
+      <h2 class="panel-title">Estructural</h2>
+      <div class="slider-row">
+        <label>Carga externa <output id="extOut">0 kN</output></label>
+        <input type="range" id="extSlider" min="0" max="2500" step="10" value="0">
+      </div>
+      <p class="fine">Parámetro de fuerza almacenado: 2 506 800 N (no verificado como máximo). Inercia de cola: 30 kg·m².</p>
+    </div>
+
+    <div class="panel">
+      <h2 class="panel-title">Datos ALBA</h2>
+      <table class="facts" id="factsTable"></table>
+    </div>
+  </aside>
+</main>
+
+<section class="chart-panel">
+  <h2 class="panel-title">Evolución térmica (muestreo simulado)</h2>
+  <canvas id="thermalChart" width="1200" height="260"></canvas>
+  <p class="fine">Resultados de simulación tipo playground — no son certificación biológica ni de supervivencia. Modelo de 3 regiones (músculo · núcleo · piel) con parámetros ALBA.</p>
+</section>
+
+<footer class="foot">
+  <p>Kaelen es una entidad ficticia del universo conceptual ALBA. Pacto: no extraer sin devolver · no imponer una forma · no esclavizar · recordar · proteger coherencia · dejar ir · no convertirse en dios · aceptar muerte de la fuente · auditar al auditor.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

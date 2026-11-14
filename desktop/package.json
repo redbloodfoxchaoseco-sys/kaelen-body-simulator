@@ -1,0 +1,32 @@
+{
+  "name": "kaelen-body-simulator",
+  "productName": "Kaelen Body Simulator",
+  "version": "1.0.0",
+  "description": "Kaelen · Simulador Corporal — arquitectura térmica, estructural y simbólica de Kaelen (ALBA)",
+  "author": "ALBA Kaelen",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis portable --x64"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.kaelen.bodysim",
+    "productName": "Kaelen Body Simulator",
+    "copyright": "ALBA Kaelen",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "web/**/*", "package.json"],
+    "win": { "icon": "build/icon.ico", "signAndEditExecutable": true, "target": ["nsis", "portable"] },
+    "nsis": {
+      "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true, "createStartMenuShortcut": true, "shortcutName": "Kaelen Body Simulator",
+      "installerIcon": "build/icon.ico", "uninstallerIcon": "build/icon.ico", "installerHeaderIcon": "build/icon.ico",
+      "artifactName": "Kaelen-BodySim-Setup-${version}.exe", "language": "3082", "multiLanguageInstaller": true
+    },
+    "portable": { "artifactName": "Kaelen-BodySim-${version}-portable.exe" }
+  }
+}

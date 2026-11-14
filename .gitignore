@@ -1,0 +1,13 @@
+# Keystore y secretos de firma — nunca se versionan
+*.jks
+android/signing-secrets.txt
+# Node / Electron
+node_modules/
+desktop/web/
+desktop/*.exe
+desktop/dist/
+# Build Android
+android/app/build/
+android/.gradle/
+android/build/
+android/app/src/main/assets/web/

@@ -1,0 +1,38 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.kaelen.bodysim'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'com.kaelen.bodysim'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+    signingConfigs {
+        release {
+            // Keystore rotado (2026-11): kaelen-release.jks, alias kaelen.
+            // La contraseña NO se versiona: se lee de variables de entorno.
+            //   export KAELEN_STORE_PASS=... ; export KAELEN_KEY_PASS=...
+            // Sin variables de entorno, la firma se omite (APK sin firmar) en lugar de fallar.
+            def ksFile = file('../kaelen-release.jks')
+            def ksPass = System.getenv('KAELEN_STORE_PASS')
+            if (ksFile.exists() && ksPass) {
+                storeFile ksFile
+                storePassword ksPass
+                keyAlias 'kaelen'
+                keyPassword System.getenv('KAELEN_KEY_PASS') ?: ksPass
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (file('../kaelen-release.jks').exists() && System.getenv('KAELEN_STORE_PASS')) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies { implementation 'androidx.webkit:webkit:1.11.0' }
