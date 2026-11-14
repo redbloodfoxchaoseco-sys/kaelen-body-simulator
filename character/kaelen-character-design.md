@@ -95,5 +95,15 @@ Ningún estado de invulnerabilidad, sin regeneración pasiva fuera de la zona, y
 
 ---
 
+## Importación en juegos (datos ejecutables)
+
+Este documento es la especificación; los datos completos y ejecutables están en [`game-data/`](../game-data/README.md):
+
+- [`kaelen-universal.json`](../game-data/kaelen-universal.json) — definición maestra (stats, números completos de todas las habilidades, guards anti-OP).
+- [`lol/kaelen-champion.json`](../game-data/lol/kaelen-champion.json) — estructura tipo `champion.json` (LoL).
+- [`mlbb/kaelen-hero.json`](../game-data/mlbb/kaelen-hero.json) — héroe MLBB completo con build recomendada.
+- [`cyberpunk2077/kaelen_boss.yaml`](../game-data/cyberpunk2077/kaelen_boss.yaml) — tweak TweakXL real para Cyberpunk 2077 (jefe KA-EL3N).
+- Importadores listos: [Unity](../game-data/importers/unity/KaelenImporter.cs) · [Godot 4](../game-data/importers/godot/kaelen_importer.gd).
+
 ## Fuentes de datos (ALBA)
 Masa 2010 kg · 3.6 m · 128 actuadores · 6390 W generación / 6358 W disipación · límite de núcleo 37.6 °C · área ZG 8 m² · cadena estructural músculo → piel escamada → placas → marco interno · centros simbólicos (corona, núcleo, raíz) · Pacto: no extraer sin devolver · no imponer una forma · no esclavizar · recordar · proteger coherencia · dejar ir · no convertirse en dios · aceptar muerte de la fuente · auditar al auditor.

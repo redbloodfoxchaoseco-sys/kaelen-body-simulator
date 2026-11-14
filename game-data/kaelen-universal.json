@@ -1,0 +1,236 @@
+{
+  "format": "kaelen-character/1.0",
+  "id": "kaelen",
+  "name": "Kaelen",
+  "title": "el Guardián Térmico",
+  "role": [
+    "tank",
+    "fighter"
+  ],
+  "resource": "heat",
+  "lore": "Guardián bio-mecánico de 3.6 m y 2010 kg. Cada acto de protección queda grabado en su memoria topológica: proteger coherencia, no extraer sin devolver, recordar.",
+  "identity": {
+    "height_m": 3.6,
+    "weight_kg": 2010,
+    "muscle_mass_kg": 991.5,
+    "actuators": 128,
+    "body_segments": 19,
+    "core_temp_limit_c": 37.6,
+    "thermal_capacity_mj_per_k": 6.7,
+    "tail_inertia_kg_m2": 30,
+    "zg_area_m2": 8
+  },
+  "assets": {
+    "portrait": "../character/art/kaelen-portrait.png",
+    "passive_icon": "../character/art/icon-passive.png",
+    "q_icon": "../character/art/icon-q.png",
+    "w_icon": "../character/art/icon-w.png",
+    "e_icon": "../character/art/icon-e.png",
+    "r_icon": "../character/art/icon-r.png"
+  },
+  "base_stats": {
+    "hp": 650,
+    "hp_per_level": 105,
+    "attack_damage": 60,
+    "ad_per_level": 3.5,
+    "attack_speed": 0.658,
+    "armor": 38,
+    "armor_per_level": 4.2,
+    "magic_resist": 32,
+    "mr_per_level": 1.5,
+    "movement_speed": 335,
+    "attack_range": 175
+  },
+  "passive": {
+    "id": "kaelen_p_equilibrio_termico",
+    "name": "Equilibrio Térmico",
+    "resource": {
+      "type": "heat",
+      "min": 0,
+      "max": 100,
+      "gain_per_ability": 20,
+      "gain_per_basic_attack": 8,
+      "decay_per_second_out_of_combat": 5
+    },
+    "thresholds": {
+      "secondary_effects_min_heat": 60,
+      "vent_at_heat": 100
+    },
+    "vent": {
+      "description": "Venteo forzado: el cuerpo impone su límite de 37.6 °C",
+      "self_silence_seconds": 3,
+      "ms_bonus_percent": 30,
+      "vent_radius": 300,
+      "vent_magic_damage_per_second": 10
+    }
+  },
+  "abilities": {
+    "q": {
+      "id": "kaelen_q_lanza_termal",
+      "name": "Lanza Termal",
+      "slot": "Q",
+      "cooldown": [
+        8,
+        7,
+        6,
+        5,
+        4
+      ],
+      "cost_heat": 20,
+      "description": "Lanza una línea de plasma térmico que daña al primer enemigo golpeado.",
+      "skillshot": {
+        "type": "line",
+        "range": 900,
+        "width": 70,
+        "speed": 1600
+      },
+      "damage": {
+        "magic": [
+          60,
+          95,
+          130,
+          165,
+          200
+        ],
+        "ap_ratio": 0.4
+      },
+      "heat_augmented": {
+        "min_heat": 60,
+        "effect": {
+          "slow": {
+            "percent": 25,
+            "duration_seconds": 1.5
+          }
+        }
+      }
+    },
+    "w": {
+      "id": "kaelen_w_placas_de_escama",
+      "name": "Placas de Escama",
+      "slot": "W",
+      "cooldown": 14,
+      "cost_heat": 20,
+      "description": "Escudo de placas que crece mientras Kaelen permanece anclado y se debilita al moverse.",
+      "shield": {
+        "base": [
+          60,
+          90,
+          120,
+          150,
+          180
+        ],
+        "bonus_hp_ratio": 0.08,
+        "stationary_growth_percent": 40,
+        "moving_penalty_percent": 50,
+        "duration_seconds": 4
+      },
+      "heat_augmented": {
+        "min_heat": 60,
+        "on_break": {
+          "description": "Fragmentos de escama en área",
+          "magic_damage": [
+            40,
+            60,
+            80,
+            100,
+            120
+          ],
+          "ap_ratio": 0.2,
+          "radius": 250
+        }
+      }
+    },
+    "e": {
+      "id": "kaelen_e_eco_topologico",
+      "name": "Eco Topológico",
+      "slot": "E",
+      "cooldown": 16,
+      "cost_heat": 20,
+      "description": "Deslizamiento que deja un eco de memoria; el eco pulsa tras 1 s y Kaelen puede regresar a él.",
+      "dash": {
+        "range": 450
+      },
+      "echo": {
+        "delay_seconds": 1,
+        "pulse_magic_damage": [
+          50,
+          80,
+          110,
+          140,
+          170
+        ],
+        "ap_ratio": 0.3,
+        "slow": {
+          "percent": 30,
+          "duration_seconds": 1.5
+        },
+        "radius": 250
+      },
+      "recast": {
+        "window_seconds": 3,
+        "description": "Regresar al eco (una vez por uso)",
+        "return_type": "blink"
+      }
+    },
+    "r": {
+      "id": "kaelen_r_guardian_de_coherencia",
+      "name": "Guardián de Coherencia",
+      "slot": "R",
+      "cooldown": [
+        120,
+        100,
+        80
+      ],
+      "description": "Zona de coherencia: protege a los aliados y almacena el daño evitado para liberarlo como pulso térmico — o lo sufre él.",
+      "cast": {
+        "channel_seconds": 1
+      },
+      "zone": {
+        "radius": 550,
+        "duration_seconds": 5,
+        "ally_damage_reduction_percent": [
+          12,
+          16,
+          20
+        ],
+        "requires_kaelen_inside": true
+      },
+      "stored_damage": {
+        "absorb_percent_of_mitigated": 10,
+        "cap": [
+          400,
+          700,
+          1000
+        ],
+        "release": {
+          "type": "aoe_pulse",
+          "window_seconds": 2,
+          "on_timeout": "kaelen_suffers_50_percent_of_stored_as_true_damage"
+        }
+      }
+    }
+  },
+  "anti_op_guards": [
+    "no_hard_crowd_control",
+    "single_short_dash",
+    "long_dash_cooldown",
+    "predictable_vent_windows",
+    "ultimate_requires_kaelen_to_stay_in_zone"
+  ],
+  "localization": {
+    "es": {
+      "passive": "Equilibrio Térmico",
+      "q": "Lanza Termal",
+      "w": "Placas de Escama",
+      "e": "Eco Topológico",
+      "r": "Guardián de Coherencia"
+    },
+    "en": {
+      "passive": "Thermal Equilibrium",
+      "q": "Thermal Lance",
+      "w": "Scale Plating",
+      "e": "Topological Echo",
+      "r": "Guardian of Coherence"
+    }
+  }
+}

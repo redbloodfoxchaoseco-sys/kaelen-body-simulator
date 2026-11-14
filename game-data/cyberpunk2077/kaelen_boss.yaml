@@ -1,0 +1,59 @@
+# KA-EL3N — Cyberpunk 2077 · TweakXL tweak
+# Import: instala TweakXL y copia este archivo a
+#   Cyberpunk 2077/r6/tweaks/kaelen/kaelen_boss.yaml
+# Define al jefe KA-EL3N como variante de enemigo basada en el mech (mechanicalWalker)
+# con estadísticas y comportamiento derivados del diseño ALBA de Kaelen.
+
+Animations: !append
+  # (opcional) reutiliza animaciones de mechs existentes; no define nuevas.
+
+# --- Perfil de aparición: jefe de contrato lateral ---
+TweakDBID.kAEL3N_appearance: !record
+  type: 'gamedataCharacterRecord'
+  entityTemplatePath: 'base\\characters\\entities\\mech\\mech_walker.ent'   # plantilla base (reemplazable por un mesh propio)
+  appearanceName: 'kaelen_plates'                                            # variante de apariencia: placas doradas + núcleo térmico
+  archetypeName: 'Archetype.Mech'
+
+# --- Estadísticas del jefe (derivadas de ALBA: 2010 kg, 6390 W térmicos) ---
+TweakDBID.kAEL3N_stats: !record
+  type: 'gamedataNPCStatsPreset_Record'
+  health: 4000                 # jefe de fase única, kiteable
+  armor: 35                    # placas de escama: armadura alta pero no absoluta
+  thermal_resistance: 0.65     # resistencias térmicas altas (su propio dominio)
+  hack_resistance: 0.40        # quickhacks: ralentizan, no controlan (anti-OP)
+  movement_speed: 1.0          # NO es un mech veloz: tanque de zona
+  detection_speed: 0.9
+
+# --- Fases del combate (memoria topológica: adapta ataques ya vistos) ---
+TweakDBID.kAEL3N_ai: !record
+  type: 'gamedataAISquadParams_Record'
+  aggression: 0.6
+  preferred_range: 'medium'    # mantiene zona, no persigue lejos (Pacto: proteger coherencia)
+  phase_2_at_health_percent: 0.5
+  phase_2_note: 'Venteo: 4 s de sobrecalentamiento visible (placas al rojo), +30% velocidad, sin nuevos ataques térmicos'
+
+# --- Habilidades ---
+TweakDBID.kAEL3N_abilities:
+  - name: 'Lanza Termal'
+    type: 'beam_charge'
+    damage: 220                 # requiere línea de visión; esconderse tras cobertura la corta
+    telegraph_seconds: 1.2      # ventana clara de esquiva (anti-OP)
+  - name: 'Placas de Escama'
+    type: 'shield'
+    shield: 900
+    grows_while_stationary: true
+    breaks_on_movement: true
+  - name: 'Eco Topológico'
+    type: 'dash_echo'
+    dash_distance_m: 8
+    echo_detonation: '120 dmg área + ralentización'
+  - name: 'Guardián de Coherencia'
+    type: 'zone_buff'
+    radius_m: 12
+    duration_seconds: 10
+    effect: 'Los drones aliados dentro reciben 20% menos daño; KA-EL3N debe permanecer en la zona'
+
+# --- Recompensas ---
+TweakDBID.kAEL3N_loot:
+  - 'Icono de diseño: Procesador de Coherencia (aumenta la recarga de quickhacks un 10%)'
+  - 'Dinero: 3500 eddies'

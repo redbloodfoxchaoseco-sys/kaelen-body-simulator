@@ -6,7 +6,8 @@ Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): 
 - `web/` — la app (HTML/CSS/JS puro, sin dependencias, funciona offline)
 - `android/` — proyecto Gradle (WebView + WebViewAssetLoader, puente `KaelenSim` para guardar/copiar)
 - `desktop/` — Electron (ventana nativa, menú en español)
-- `character/` — diseño de personaje para League of Legends, Mobile Legends y Cyberpunk 2077
+- `character/` — diseño de personaje (retrato + iconos de habilidades) para League of Legends, Mobile Legends y Cyberpunk 2077
+- `game-data/` — datos de personaje ejecutables: JSON universal, exportes LoL/MLBB/Cyberpunk 2077 (TweakXL) e importadores de Unity y Godot
 - `installers/` — instaladores listos (Windows setup/portable, Android APK)
 
 ## Simulación
