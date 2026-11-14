@@ -2,6 +2,23 @@
 
 Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): sistema térmico, hipótesis estructural y centros simbólicos, con los datos reales del proyecto ALBA.
 
+## Showcase
+
+### Kaelen · Anatomía 3D
+Herramienta anatómica digital interactiva: modelo 3D de los 19 segmentos con capas (piel · músculo · marco interno), sistemas térmico · circulatorio · actuadores · estructural · centros simbólicos, casos de estudio y **Asistente ALBA** contextual.
+
+<p>
+  <a href="https://www.perplexity.ai/computer/a/kaelen-anatomia-3d-dCsUO..lQCqSo9GfcsCNYw">
+    <img src="anatomy3d/assets/portrait.jpg" alt="Retrato de Kaelen" width="260" align="left" style="margin-right:16px;border-radius:8px">
+  </a>
+  <strong>Pruébala:</strong>
+  <ul>
+    <li><a href="https://www.perplexity.ai/computer/a/kaelen-anatomia-3d-dCsUO..lQCqSo9GfcsCNYw">Demo en vivo</a> — funciona en escritorio y móvil (requiere conexión)</li>
+    <li><a href="anatomy3d/">Código fuente</a> — abrir <code>anatomy3d/index.html</code></li>
+    <li><a href="https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/tag/v1.2.0">Release v1.2.0 · Anatomía 3D</a></li>
+  </ul>
+</p>
+
 ## Estructura
 - `web/` — la app (HTML/CSS/JS puro, sin dependencias, funciona offline)
 - `anatomy3d/` — **Kaelen · Anatomía 3D**: herramienta anatómica digital interactiva (Three.js vía CDN) — modelo 3D de los 19 segmentos con capas (piel · músculo · marco interno), sistemas (térmico · circulatorio · actuadores · estructural · centros simbólicos) y **Asistente ALBA** contextual. Abrir `anatomy3d/index.html`.
