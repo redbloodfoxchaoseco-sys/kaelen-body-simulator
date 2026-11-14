@@ -57,7 +57,9 @@ jobs:
           fi
 
       - name: Sync web assets
-        run: rsync -a --delete web/ android/app/src/main/assets/web/
+        run: |
+          mkdir -p android/app/src/main/assets/web
+          rsync -a --delete web/ android/app/src/main/assets/web/
 
       - name: Determine version
         id: ver
@@ -140,7 +142,7 @@ jobs:
           TAG: ${{ steps.ver.outputs.tag }}
         shell: bash
         run: |
-          if [ -n "$TAG" ]; then npm pkg set version "${TAG#v}"; fi
+          if [ -n "$TAG" ]; then npm pkg set "version=${TAG#v}"; fi
           npm install --no-fund --no-audit
           npm run dist
 
