@@ -4,6 +4,7 @@ Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): 
 
 ## Estructura
 - `web/` — la app (HTML/CSS/JS puro, sin dependencias, funciona offline)
+- `anatomy3d/` — **Kaelen · Anatomía 3D**: herramienta anatómica digital interactiva (Three.js vía CDN) — modelo 3D de los 19 segmentos con capas (piel · músculo · marco interno), sistemas (térmico · circulatorio · actuadores · estructural · centros simbólicos) y **Asistente ALBA** contextual. Abrir `anatomy3d/index.html`.
 - `android/` — proyecto Gradle (WebView + WebViewAssetLoader, puente `KaelenSim` para guardar/copiar)
 - `desktop/` — Electron (ventana nativa, menú en español)
 - `character/` — diseño de personaje (retrato + iconos de habilidades) para League of Legends, Mobile Legends y Cyberpunk 2077
@@ -26,6 +27,17 @@ Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): 
 - **Android:** copiar `web/` a `android/app/src/main/assets/web`, luego `gradle assembleRelease`.
   Firma (keystore rotado 2026-11): `android/kaelen-release.jks`, alias `kaelen`.
   El keystore y su contraseña **no se versionan**: exporta `KAELEN_STORE_PASS` (y opcionalmente `KAELEN_KEY_PASS`) antes de compilar. Sin ellas, Gradle genera un APK sin firmar en lugar de fallar.
+
+## APK automático en cada release (GitHub Actions)
+Al publicar un release, [.github/workflows/release-apk.yml](.github/workflows/release-apk.yml) reconstruye el APK firmado y lo adjunta al release automáticamente. Requiere estos secretos del repo:
+
+| Secreto | Contenido |
+|---|---|
+| `KAELEN_KEYSTORE_B64` | `base64 -w0 kaelen-release.jks` del keystore rotado (copia privada en Google Drive) |
+| `KAELEN_STORE_PASS` | Contraseña del keystore |
+| `KAELEN_KEY_PASS` | Contraseña de la clave (opcional si es la misma) |
+
+Sin los secretos, el flujo construye un APK sin firmar y lo avisa. La versión del APK toma la etiqueta del release (`v1.2.0` → `versionName 1.2.0`) y el `versionCode` es el número de commits.
 
 ## Descargas (v1.0.0)
 - [Kaelen-BodySim-Setup-1.0.0.exe](installers/Kaelen-BodySim-Setup-1.0.0.exe) — Windows instalador

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaelen · Anatomía 3D — Simulador Corporal ALBA</title>
+<meta name="description" content="Herramienta anatómica digital 3D de Kaelen (ALBA): capas corporales, sistemas térmico, estructural, circulatorio, actuadores y centros simbólicos.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://esm.sh/three@0.169.0",
+    "three/addons/": "https://esm.sh/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4.5"/>
+      </svg>
+    </span>
+    <div>
+      <h1>Kaelen · Anatomía 3D</h1>
+      <p class="brand-sub">Herramienta anatómica digital · datos reales ALBA</p>
+    </div>
+  </div>
+  <nav class="view-tabs" role="tablist" aria-label="Vistas">
+    <button class="tab active" data-view="anatomy" role="tab" aria-selected="true">Anatomía</button>
+    <button class="tab" data-view="thermal" role="tab" aria-selected="false">Térmico</button>
+    <button class="tab" data-view="structural" role="tab" aria-selected="false">Estructural</button>
+    <button class="tab" data-view="centers" role="tab" aria-selected="false">Centros</button>
+  </nav>
+  <div class="topbar-metrics">
+    <div class="metric"><span class="m-label">Generación</span><span class="m-value" id="mGen">6 390 W</span></div>
+    <div class="metric"><span class="m-label">Núcleo</span><span class="m-value" id="mCore">34.0 °C</span></div>
+    <div class="metric"><span class="m-label">Carga</span><span class="m-value" id="mLoad">0 %</span></div>
+    <div class="metric"><span class="m-label">Veredicto</span><span class="m-value ok" id="mVerdict">● dentro de límite</span></div>
+  </div>
+  <button class="panel-toggle" id="leftToggle" aria-label="Panel de capas">Capas</button>
+  <button class="panel-toggle" id="rightToggle" aria-label="Panel de datos">Datos</button>
+</header>
+
+<div class="layout">
+  <aside class="panel left" id="leftPanel">
+    <section class="panel-block open">
+      <h2 class="panel-title open">Capas corporales</h2>
+      <div class="panel-body">
+        <div class="layer-row">
+          <label><input type="checkbox" id="layerSkin" checked> <span class="dot dot-skin"></span> Piel escamada</label>
+          <input type="range" id="skinOpacity" min="10" max="100" value="100" aria-label="Opacidad de piel">
+        </div>
+        <label><input type="checkbox" id="layerMuscle" checked> <span class="dot dot-muscle"></span> Músculo <span class="count">991.5 kg</span></label>
+        <label><input type="checkbox" id="layerSkeleton" checked> <span class="dot dot-skeleton"></span> Marco interno / esqueleto</label>
+        <p class="hint">Desactiva la piel para ver músculo y marco interno — anatomía por capas.</p>
+      </div>
+    </section>
+    <section class="panel-block open">
+      <h2 class="panel-title open">Sistemas</h2>
+      <div class="panel-body">
+        <label><input type="checkbox" id="sysThermal"> <span class="dot dot-thermal"></span> Mapa térmico <span class="count">3 regiones</span></label>
+        <label><input type="checkbox" id="sysCirculatory"> <span class="dot dot-circ"></span> Circulatorio <span class="count">155 L</span></label>
+        <label><input type="checkbox" id="sysActuators"> <span class="dot dot-act"></span> Actuadores <span class="count">128</span></label>
+        <label><input type="checkbox" id="sysCenters"> <span class="dot dot-centers"></span> Centros simbólicos <span class="count">8</span></label>
+        <label><input type="checkbox" id="sysLabels"> Etiquetas de centros</label>
+      </div>
+    </section>
+    <section class="panel-block">
+      <h2 class="panel-title">Cadena de carga estructural</h2>
+      <div class="panel-body" id="loadPathBox" hidden>
+        <div id="loadChain" class="chain"></div>
+        <p class="hint">Redistribución dependiente de la deformación — hipótesis ALBA: a mayor carga, los anclajes toman más.</p>
+      </div>
+    </section>
+  </aside>
+
+  <main class="stage" id="stage">
+    <canvas id="scene"></canvas>
+    <div class="viz-hint" id="vizHint">Arrastra para orbitar · rueda para zoom · toca un segmento para inspeccionarlo</div>
+    <div class="tip" id="tipBox" style="display:none"></div>
+    <button class="assistant-fab" id="assistantFab" aria-expanded="false" aria-controls="assistantPanel">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7v3l2 3h-4a7 7 0 0 1-10 0H3l2-3V9a7 7 0 0 1 7-7z"/><circle cx="9.5" cy="9.5" r="0.5" fill="currentColor"/><circle cx="14.5" cy="9.5" r="0.5" fill="currentColor"/></svg>
+      Asistente ALBA
+    </button>
+    <div class="assistant-panel" id="assistantPanel" hidden>
+      <header class="assistant-head">
+        <div>
+          <h2>Asistente ALBA</h2>
+          <p class="assistant-sub">Guía contextual — datos y principios del universo Kaelen</p>
+        </div>
+        <button class="assistant-close" id="assistantClose" aria-label="Cerrar asistente">✕</button>
+      </header>
+      <div class="assistant-log" id="assistantLog" aria-live="polite"></div>
+      <div class="assistant-actions" id="assistantActions"></div>
+    </div>
+  </main>
+
+  <aside class="panel right" id="rightPanel">
+    <section class="panel-block portrait-card">
+      <img src="assets/portrait.jpg" alt="Retrato de Kaelen — guardián térmico de cabeza de zorro y placas doradas" width="1024" height="683">
+      <p class="caption">Kaelen · Guardián Térmico — cabeza de zorro, placas doradas, cola con inercia de 30 kg·m²</p>
+    </section>
+    <section class="panel-block open">
+      <h2 class="panel-title open">Inspector</h2>
+      <div class="panel-body" id="inspector">
+        <p class="hint">Toca un segmento del modelo 3D para ver su masa muscular, temperatura y estrés.</p>
+      </div>
+    </section>
+    <section class="panel-block">
+      <h2 class="panel-title">Naturaleza → Poder</h2>
+      <div class="panel-body" id="abilities"></div>
+    </section>
+    <section class="panel-block">
+      <h2 class="panel-title">Conceptos ALBA</h2>
+      <div class="panel-body glossary" id="glossary"></div>
+    </section>
+    <section class="panel-block">
+      <h2 class="panel-title">Datos ALBA</h2>
+      <div class="panel-body">
+        <table class="facts" id="factsTable"><caption class="sr-only">Datos del proyecto ALBA</caption></table>
+        <p class="pact">Pacto: no extraer sin devolver · no imponer una forma · no esclavizar · recordar · proteger coherencia · dejar ir · no convertirse en dios · aceptar muerte de la fuente · auditar al auditor.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<footer class="controls">
+  <div class="controls-scroll">
+    <div class="ctrl-group">
+      <span class="ctrl-title">Actividad</span>
+      <div class="chip-row">
+        <button class="chip" data-act="rest">Reposo</button>
+        <button class="chip" data-act="walk">Marcha</button>
+        <button class="chip active" data-act="combat">Combate</button>
+        <button class="chip" data-act="overload">Sobrecarga</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-title">Casos documentados</span>
+      <div class="chip-row">
+        <button class="chip" data-case="baseline">Caso base</button>
+        <button class="chip" data-case="evap">Solo evaporación</button>
+        <button class="chip" data-case="enhanced">Mejorado</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label class="slider-row"><span>Transporte K</span><input type="range" id="kSlider" min="500" max="3000" step="50" value="1000"><output id="kOut">1 000 W/K</output></label>
+      <label class="slider-row"><span>Evaporación E</span><input type="range" id="eSlider" min="0" max="8000" step="100" value="0"><output id="eOut">0 W</output></label>
+      <label class="slider-row"><span>Ambiente</span><input type="range" id="ambSlider" min="0" max="45" step="1" value="25"><output id="ambOut">25 °C</output></label>
+      <label class="slider-row"><span>Carga externa</span><input type="range" id="extSlider" min="0" max="120" step="1" value="0"><output id="extOut">0 kN</output></label>
+    </div>
+    <div class="ctrl-group chart-group">
+      <span class="ctrl-title">Historial térmico</span>
+      <canvas id="thermalChart" width="520" height="130" aria-label="Gráfica de temperatura de núcleo, músculo y piel"></canvas>
+    </div>
+    <button class="chip reset" id="resetBtn">Reiniciar</button>
+  </div>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
