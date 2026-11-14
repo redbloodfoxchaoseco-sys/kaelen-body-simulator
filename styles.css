@@ -228,7 +228,7 @@ a:hover { color: var(--color-gold-hover); }
 /* Cards — Anatomía */
 .anatomia-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-6);
 }
 .card {
@@ -265,8 +265,17 @@ a:hover { color: var(--color-gold-hover); }
 .dl-link {
   font-size: var(--text-sm);
   font-weight: 500;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
+.dl-link-live {
+  display: inline-block;
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  word-break: normal;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+.dl-link-live:hover { color: var(--color-gold-hover); }
 
 /* Abilities */
 .ab-grid {
