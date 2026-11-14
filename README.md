@@ -46,7 +46,7 @@ Herramienta anatómica digital interactiva: modelo 3D de los 19 segmentos con ca
   El keystore y su contraseña **no se versionan**: exporta `KAELEN_STORE_PASS` (y opcionalmente `KAELEN_KEY_PASS`) antes de compilar. Sin ellas, Gradle genera un APK sin firmar en lugar de fallar.
 
 ## APK automático en cada release (GitHub Actions)
-Al publicar un release, [.github/workflows/release-apk.yml](.github/workflows/release-apk.yml) reconstruye el APK firmado y lo adjunta al release automáticamente. La versión del APK toma la etiqueta del release (`v1.2.0` → `versionName 1.2.0`) y el `versionCode` es el número de commits.
+Al publicar un release, [.github/workflows/release.yml](.github/workflows/release.yml) construye todas las apps (APK firmado, instaladores de Windows y zips web) y las adjunta al release automáticamente. La versión del APK toma la etiqueta del release (`v1.2.0` → `versionName 1.2.0`) y el `versionCode` es el número de commits.
 
 ### Configuración de secretos (una sola vez)
 El keystore `kaelen-release.jks` (alias `kaelen`) está respaldado de forma privada en Google Drive junto a `kaelen-keystore-credentials.txt`; nunca se versiona. Para habilitar la firma automática, crea estos tres secretos en **Settings → Secrets and variables → Actions → New repository secret**:
@@ -75,10 +75,25 @@ rm /tmp/ks.b64
 - Sin secretos, el flujo compila un APK sin firmar, **no** lo adjunta al release y deja un aviso con estas instrucciones.
 - Tras crear los secretos, publica el release normalmente; o re-ejecuta el flujo manualmente (**Run workflow**) indicando la etiqueta (p. ej. `v1.1.0`) para reconstruir y adjuntar el APK firmado de un release ya existente.
 
-## Descargas (v1.0.0)
-- [Kaelen-BodySim-Setup-1.0.0.exe](installers/Kaelen-BodySim-Setup-1.0.0.exe) — Windows instalador
-- [Kaelen-BodySim-1.0.0-portable.exe](installers/Kaelen-BodySim-1.0.0-portable.exe) — Windows portable
-- [Kaelen-BodySim-1.0.0.apk](installers/Kaelen-BodySim-1.0.0.apk) — Android 7.0+ (API 24), firmado
+## Descargas — todas las apps
+
+### Kaelen · BodySim (simulador corporal)
+| App | Descarga | Notas |
+|---|---|---|
+| **Windows instalador** | [Kaelen-BodySim-Setup-1.2.0.exe](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/download/v1.2.0/Kaelen-BodySim-Setup-1.2.0.exe) | Windows 10+ · v1.2.0 |
+| **Windows portable** | [Kaelen-BodySim-1.2.0-portable.exe](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/download/v1.2.0/Kaelen-BodySim-1.2.0-portable.exe) | Sin instalación · v1.2.0 |
+| **Android APK** | [Kaelen-BodySim-1.2.0.apk](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/download/v1.2.0/Kaelen-BodySim-1.2.0.apk) | Android 7.0+ (API 24) · firmado |
+| **Web offline (zip)** | [Kaelen-BodySim-web-1.2.0.zip](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/download/v1.2.0/Kaelen-BodySim-web-1.2.0.zip) | Descomprimir y abrir `index.html` |
+
+Versión anterior: [release v1.0.0](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/tag/v1.0.0) (Setup, portable y APK 1.0.0).
+
+### Kaelen · Anatomía 3D (herramienta anatómica)
+| App | Descarga / acceso | Notas |
+|---|---|---|
+| **Demo en vivo** | [Demo en vivo](https://www.perplexity.ai/computer/a/kaelen-anatomia-3d-dCsUO..lQCqSo9GfcsCNYw) | Escritorio y móvil · requiere conexión |
+| **Web (zip)** | [Kaelen-Anatomia3D-1.2.0.zip](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases/download/v1.2.0/Kaelen-Anatomia3D-1.2.0.zip) | Descomprimir y abrir `index.html` |
+
+Todas las descargas viven en la página de [Releases](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases); cada release nuevo construye y adjunta todo automáticamente (ver [flujo Release](.github/workflows/release.yml)).
 
 ## Datos ALBA usados
 3.6 m · 2010 kg · 991.5 kg de músculo · 128 actuadores · 6390 W generación · 6358 W disipación · capacidad 6.7 MJ/K · área ZG 8 m² · inercia de cola 30 kg·m² · 19 segmentos corporales · 8 centros simbólicos.
