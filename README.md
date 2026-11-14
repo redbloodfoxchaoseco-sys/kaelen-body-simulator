@@ -2,6 +2,8 @@
 
 Simulador de la arquitectura corporal de **Kaelen** (universo conceptual ALBA): sistema térmico, hipótesis estructural y centros simbólicos, con los datos reales del proyecto ALBA.
 
+**Sitio web:** [redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator](https://redbloodfoxchaoseco-sys.github.io/kaelen-body-simulator/) — demo de Anatomía 3D y descargas de todas las apps.
+
 ## Showcase
 
 ### Kaelen · Anatomía 3D
