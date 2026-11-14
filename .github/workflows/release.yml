@@ -1,0 +1,190 @@
+name: Release
+
+# Construye TODAS las apps de Kaelen y las adjunta al release:
+#   1. APK de Android (firmado con el keystore rotado)
+#   2. Instaladores de Windows (NSIS + portable, Electron)
+#   3. Zips de las apps web (simulador offline + Anatomía 3D)
+#
+# Se dispara al publicar un release, o manualmente (Run workflow) con la
+# etiqueta de un release existente para reconstruirlo.
+#
+# Secretos requeridos para firmar el APK (Settings > Secrets and variables > Actions):
+#   KAELEN_KEYSTORE_B64 — kaelen-release.jks en base64 (base64 -w0 kaelen-release.jks)
+#   KAELEN_STORE_PASS   — contraseña del keystore (respaldo privado en Google Drive)
+#   KAELEN_KEY_PASS     — contraseña de la clave (opcional si es la misma)
+# Sin secretos, el APK sale sin firmar y no se adjunta; los instaladores
+# de Windows y los zips web sí se adjuntan igualmente.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Etiqueta del release a reconstruir (ej. v1.2.0); vacío = solo compilar'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Decode keystore
+        id: keystore
+        env:
+          KAELEN_KEYSTORE_B64: ${{ secrets.KAELEN_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KAELEN_KEYSTORE_B64" ]; then
+            echo "$KAELEN_KEYSTORE_B64" | base64 -d > android/kaelen-release.jks
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "keystore decodificado — APK firmado"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Falta el secreto KAELEN_KEYSTORE_B64 — el APK saldrá sin firmar y no se adjuntará"
+          fi
+
+      - name: Sync web assets
+        run: rsync -a --delete web/ android/app/src/main/assets/web/
+
+      - name: Determine version
+        id: ver
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG=""
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "code=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK
+        env:
+          KAELEN_STORE_PASS: ${{ secrets.KAELEN_STORE_PASS }}
+          KAELEN_KEY_PASS: ${{ secrets.KAELEN_KEY_PASS }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          CODE: ${{ steps.ver.outputs.code }}
+        run: |
+          gradle -p android assembleRelease \
+            -PAPP_VERSION="${TAG#v}" -PAPP_CODE="$CODE" --no-daemon
+
+      - name: Verify signature
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          if [ -f android/kaelen-release.jks ]; then
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)
+            "$BT/apksigner" verify --print-certs "$APK" | head -5
+          else
+            echo "APK sin firmar — omisión de verificación"
+          fi
+
+      - name: Attach APK to release
+        if: ${{ steps.keystore.outputs.signed == 'true' && steps.ver.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk "Kaelen-BodySim-${TAG#v}.apk"
+          gh release upload "$TAG" "Kaelen-BodySim-${TAG#v}.apk" --clobber
+
+  windows:
+    needs: apk
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine version
+        id: ver
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG=""
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Sync web assets
+        shell: bash
+        run: |
+          mkdir -p desktop/web
+          cp -r web/. desktop/web/
+
+      - name: Build installers
+        working-directory: desktop
+        env:
+          TAG: ${{ steps.ver.outputs.tag }}
+        shell: bash
+        run: |
+          if [ -n "$TAG" ]; then npm pkg set version "${TAG#v}"; fi
+          npm install --no-fund --no-audit
+          npm run dist
+
+      - name: Attach installers to release
+        if: ${{ steps.ver.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        shell: bash
+        run: |
+          gh release upload "$TAG" \
+            "desktop/dist/Kaelen-BodySim-Setup-${TAG#v}.exe" \
+            "desktop/dist/Kaelen-BodySim-${TAG#v}-portable.exe" \
+            --clobber
+
+  web-zips:
+    needs: windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: ver
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG=""
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Zip web apps
+        if: ${{ steps.ver.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        run: |
+          zip -r "Kaelen-BodySim-web-${TAG#v}.zip" web/
+          zip -r "Kaelen-Anatomia3D-${TAG#v}.zip" anatomy3d/
+          gh release upload "$TAG" \
+            "Kaelen-BodySim-web-${TAG#v}.zip" \
+            "Kaelen-Anatomia3D-${TAG#v}.zip" \
+            --clobber
