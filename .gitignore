@@ -1,13 +1,27 @@
-# Keystore y secretos de firma — nunca se versionan
-*.jks
-android/signing-secrets.txt
-# Node / Electron
-node_modules/
+# Build outputs — distribution binaries live in GitHub Releases, never in git.
+installers/
+*.exe
+*.apk
+*.aab
+*.dmg
+*.msi
+
+# Local build dirs
 desktop/web/
-desktop/*.exe
 desktop/dist/
-# Build Android
-android/app/build/
+android/app/src/main/assets/web/
 android/.gradle/
 android/build/
-android/app/src/main/assets/web/
+android/app/build/
+android/local.properties
+node_modules/
+
+# Signing material — never versioned
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# OS noise
+.DS_Store
+Thumbs.db

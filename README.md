@@ -27,12 +27,21 @@ Herramienta anatómica digital interactiva: modelo 3D de los 19 segmentos con ca
 
 ## Estructura
 - `web/` — la app (HTML/CSS/JS puro, sin dependencias, funciona offline)
-- `anatomy3d/` — **Kaelen · Anatomía 3D**: herramienta anatómica digital interactiva (Three.js vía CDN) — modelo 3D de los 19 segmentos con capas (piel · músculo · marco interno), sistemas (térmico · circulatorio · actuadores · estructural · centros simbólicos) y **Asistente ALBA** contextual. Abrir `anatomy3d/index.html`.
+- `anatomy3d/vendor/three/` — copia verbatim de Three.js r169 usada por la herramienta 3D (sin CDN)
+- `anatomy3d/` — **Kaelen · Anatomía 3D**: herramienta anatómica digital interactiva (Three.js **vendorizado** en `anatomy3d/vendor/three/`, funciona sin conexión) — modelo 3D de los 19 segmentos con capas (piel · músculo · marco interno), sistemas (térmico · circulatorio · actuadores · estructural · centros simbólicos) y **Asistente ALBA** contextual. Abrir `anatomy3d/index.html`.
 - `android/` — proyecto Gradle (WebView + WebViewAssetLoader, puente `KaelenSim` para guardar/copiar)
 - `desktop/` — Electron (ventana nativa, menú en español)
 - `character/` — diseño de personaje (retrato + iconos de habilidades) para League of Legends, Mobile Legends y Cyberpunk 2077
 - `game-data/` — datos de personaje ejecutables: JSON universal, exportes LoL/MLBB/Cyberpunk 2077 (TweakXL) e importadores de Unity y Godot
-- `installers/` — instaladores listos (Windows setup/portable, Android APK)
+- `installers/` — instaladores listos (Windows setup/portable, Android APK). **No se versionan**: cada release los adjunta automáticamente y `installers/` está en `.gitignore`.
+
+## Tamaño del repositorio
+
+Los binarios de distribución (instaladores y APK) viven en
+[Releases](https://github.com/redbloodfoxchaoseco-sys/kaelen-body-simulator/releases),
+no en el historial de git. Para reducir además el tamaño histórico ya
+acumulado hace falta una reescritura con `git filter-repo` (requiere
+force-push y coordinación con cualquier clon existente).
 
 ## Simulación
 - **Modelo térmico de 3 regiones** (músculo · núcleo · piel) calibrado a los resultados documentados del playground ALBA:

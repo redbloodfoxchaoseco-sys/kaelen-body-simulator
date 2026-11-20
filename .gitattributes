@@ -1,0 +1,10 @@
+# Keep binary assets out of textual diffs.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.apk binary
+*.exe binary
+*.zip binary
+
+# Vendored Three.js is a verbatim upstream copy.
+anatomy3d/vendor/** linguist-vendored
